@@ -16,11 +16,3 @@ spring:
     import:
       - nacos:application-@profiles.active@.yml
       - nacos:${spring.application.name}-@profiles.active@.yml
-
-file:
-  bucketName: test # 上文创建的桶名称
-  oss:
-    enable: true
-    endpoint: http://127.0.0.1:9000
-    access-key: 99SdYFm5bOGEwHeTDpgH # 上文创建的AK
-    secret-key: ijFu7tfODt9fo0DxzhJXdWcmNi8FHO9NOuYUaExB # 上文创建的SK
