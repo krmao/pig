@@ -16,6 +16,7 @@
 
 package com.pig4cloud.pig.common.security.component;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -34,6 +35,7 @@ import java.util.regex.Pattern;
  * @author caiqy
  * @date 2020.05.15
  */
+@Slf4j
 public class PigBearerTokenExtractor implements BearerTokenResolver {
 
 	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-:._~+/]+=*)$",
@@ -60,6 +62,7 @@ public class PigBearerTokenExtractor implements BearerTokenResolver {
 			.anyMatch(url -> pathMatcher.match(url, request.getRequestURI()));
 
 		if (match) {
+			log.info("|kr.mao|[BearerTokenExtractor] resolve null");
 			return null;
 		}
 
@@ -72,11 +75,14 @@ public class PigBearerTokenExtractor implements BearerTokenResolver {
 					.invalidRequest("Found multiple bearer tokens in the request");
 				throw new OAuth2AuthenticationException(error);
 			}
+			log.info("|kr.mao|[BearerTokenExtractor] resolve authorizationHeaderToken={}", authorizationHeaderToken);
 			return authorizationHeaderToken;
 		}
 		if (parameterToken != null && isParameterTokenEnabledForRequest(request)) {
+			log.info("|kr.mao|[BearerTokenExtractor] resolve parameterToken={}", parameterToken);
 			return parameterToken;
 		}
+		log.info("|kr.mao|[BearerTokenExtractor] resolve null");
 		return null;
 	}
 

@@ -2,11 +2,13 @@ package com.pig4cloud.pig.auth.support.core;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.pig4cloud.pig.auth.util.AuthLogUtil;
 import com.pig4cloud.pig.common.core.constant.SecurityConstants;
 import com.pig4cloud.pig.common.core.util.WebUtils;
 import com.pig4cloud.pig.common.security.service.PigUserDetailsService;
 import javax.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -34,6 +36,7 @@ import java.util.function.Supplier;
  * @author lengleng
  * @date 2022-06-04
  */
+@Slf4j
 public class PigDaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
 	/**
@@ -67,6 +70,7 @@ public class PigDaoAuthenticationProvider extends AbstractUserDetailsAuthenticat
 	@SuppressWarnings("deprecation")
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+		log.info("|kr.mao|[UnifiedDaoAuthenticationProvider] additionalAuthenticationChecks userDetails={}", userDetails);
 
 		// 只有密码模式需要校验密码
 		String grantType = WebUtils.getRequest().get().getParameter(OAuth2ParameterNames.GRANT_TYPE);
@@ -87,10 +91,19 @@ public class PigDaoAuthenticationProvider extends AbstractUserDetailsAuthenticat
 		}
 	}
 
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+		log.info("|kr.mao|[UnifiedDaoAuthenticationProvider] authenticate start ********>>>>>>>>>>");
+		Authentication result = super.authenticate(authentication);
+		log.info("|kr.mao|[UnifiedDaoAuthenticationProvider] authenticate end <<<<<<<<<******** {}", AuthLogUtil.getValueString(result.getPrincipal()));
+		return result;
+	}
+
 	@SneakyThrows
 	@Override
-
 	protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) {
+		log.info("|kr.mao|[UnifiedDaoAuthenticationProvider] retrieveUser start username={}", username);
+
 		prepareTimingAttackProtection();
 		HttpServletRequest request = WebUtils.getRequest()
 			.orElseThrow(
@@ -112,6 +125,8 @@ public class PigDaoAuthenticationProvider extends AbstractUserDetailsAuthenticat
 			.filter(service -> service.support(finalClientId, grantType))
 			.max(Comparator.comparingInt(Ordered::getOrder));
 
+		log.info("|kr.mao|[UnifiedDaoAuthenticationProvider] retrieveUser 校验 clientId={} 和 grantType={}", clientId, grantType);
+
 		if (!optional.isPresent()) {
 			throw new InternalAuthenticationServiceException("UserDetailsService error , not register");
 		}
@@ -122,6 +137,8 @@ public class PigDaoAuthenticationProvider extends AbstractUserDetailsAuthenticat
 				throw new InternalAuthenticationServiceException(
 						"UserDetailsService returned null, which is an interface contract violation");
 			}
+
+			log.info("|kr.mao|[UnifiedDaoAuthenticationProvider] retrieveUser end 根据用户名获取数据库中的包含已加密密码的真实用户信息 loadUserByUsername loadedUser={}", loadedUser);
 			return loadedUser;
 		}
 		catch (UsernameNotFoundException ex) {
@@ -139,6 +156,8 @@ public class PigDaoAuthenticationProvider extends AbstractUserDetailsAuthenticat
 	@Override
 	protected Authentication createSuccessAuthentication(Object principal, Authentication authentication,
 			UserDetails user) {
+		log.info("|kr.mao|[UnifiedDaoAuthenticationProvider] createSuccessAuthentication principal={}", principal);
+
 		boolean upgradeEncoding = this.userDetailsPasswordService != null
 				&& this.passwordEncoder.upgradeEncoding(user.getPassword());
 		if (upgradeEncoding) {

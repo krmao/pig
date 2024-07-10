@@ -84,6 +84,8 @@ public class PigAuthenticationSuccessEventHandler implements AuthenticationSucce
 			SpringContextHolder.publishEvent(new SysLogEvent(logVo));
 		}
 
+		log.info("|kr.mao|[PigAuthenticationSuccessEventHandler] AuthenticationSuccessEventHandlerImpl onAuthenticationSuccess 授权成功回调 开始调用输出 token sendAccessTokenResponse");
+
 		// 输出token
 		sendAccessTokenResponse(request, response, authentication);
 	}
@@ -114,6 +116,8 @@ public class PigAuthenticationSuccessEventHandler implements AuthenticationSucce
 
 		// 无状态 注意删除 context 上下文的信息
 		SecurityContextHolder.clearContext();
+		OAuth2RefreshToken refreshTokenResult = accessTokenResponse.getRefreshToken();
+		log.info("|kr.mao|[PigAuthenticationSuccessEventHandler] AuthenticationSuccessEventHandlerImpl sendAccessTokenResponse 返回成功数据 AccessToken={}, RefreshToken={}", accessTokenResponse.getAccessToken().getTokenValue(), refreshTokenResult == null? null : refreshTokenResult.getTokenValue());
 
 		this.accessTokenHttpResponseConverter.write(accessTokenResponse, null, httpResponse);
 	}

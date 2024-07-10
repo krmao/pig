@@ -1,6 +1,8 @@
 package com.pig4cloud.pig.common.security.service;
 
+import com.pig4cloud.pig.common.security.util.SecurityLogUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.lang.Nullable;
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @author lengleng
  * @date 2022/5/27
  */
+@Slf4j
 @RequiredArgsConstructor
 public class PigRedisOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
@@ -34,6 +37,8 @@ public class PigRedisOAuth2AuthorizationService implements OAuth2AuthorizationSe
 
 	@Override
 	public void save(OAuth2Authorization authorization) {
+		log.info("|kr.mao|[RedisOAuth2AuthorizationServiceImpl] save authorization={}", SecurityLogUtil.getValueString(authorization.getAccessToken()));
+
 		Assert.notNull(authorization, "authorization cannot be null");
 
 		if (isState(authorization)) {
@@ -72,10 +77,14 @@ public class PigRedisOAuth2AuthorizationService implements OAuth2AuthorizationSe
 				.set(buildKey(OAuth2ParameterNames.ACCESS_TOKEN, accessToken.getTokenValue()), authorization, between,
 						TimeUnit.SECONDS);
 		}
+
+		log.info("|kr.mao|[RedisOAuth2AuthorizationServiceImpl] save 保存 token 到 redis authorization={}", SecurityLogUtil.getValueString(authorization.getAccessToken()));
 	}
 
 	@Override
 	public void remove(OAuth2Authorization authorization) {
+		log.info("|kr.mao|[RedisOAuth2AuthorizationServiceImpl] remove authorization={}", authorization);
+
 		Assert.notNull(authorization, "authorization cannot be null");
 
 		List<String> keys = new ArrayList<>();
@@ -101,6 +110,8 @@ public class PigRedisOAuth2AuthorizationService implements OAuth2AuthorizationSe
 			keys.add(buildKey(OAuth2ParameterNames.ACCESS_TOKEN, accessToken.getTokenValue()));
 		}
 		redisTemplate.delete(keys);
+
+		log.info("|kr.mao|[RedisOAuth2AuthorizationServiceImpl] remove authorization={}", authorization.getAccessToken());
 	}
 
 	@Override
@@ -112,10 +123,16 @@ public class PigRedisOAuth2AuthorizationService implements OAuth2AuthorizationSe
 	@Override
 	@Nullable
 	public OAuth2Authorization findByToken(String token, @Nullable OAuth2TokenType tokenType) {
+		log.info("|kr.mao|[RedisOAuth2AuthorizationServiceImpl] findByToken token={}, tokenType={}", token, tokenType);
+
 		Assert.hasText(token, "token cannot be empty");
 		Assert.notNull(tokenType, "tokenType cannot be empty");
 		redisTemplate.setValueSerializer(RedisSerializer.java());
-		return (OAuth2Authorization) redisTemplate.opsForValue().get(buildKey(tokenType.getValue(), token));
+
+		// return (OAuth2Authorization) redisTemplate.opsForValue().get(buildKey(tokenType.getValue(), token));
+		OAuth2Authorization authorization = (OAuth2Authorization) redisTemplate.opsForValue().get(buildKey(tokenType.getValue(), token));
+		log.info("|kr.mao|[RedisOAuth2AuthorizationServiceImpl] findByToken token={}, authorization={}", token, authorization!=null?authorization.getAccessToken():null);
+		return authorization;
 	}
 
 	private String buildKey(String type, String id) {

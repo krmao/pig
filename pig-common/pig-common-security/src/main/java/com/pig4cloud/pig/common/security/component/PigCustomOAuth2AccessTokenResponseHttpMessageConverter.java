@@ -2,6 +2,8 @@ package com.pig4cloud.pig.common.security.component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pig4cloud.pig.common.core.util.SpringContextHolder;
+import com.pig4cloud.pig.common.security.util.SecurityLogUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpOutputMessage;
@@ -21,6 +23,7 @@ import java.util.Map;
  * @author lengleng
  * @date 2023/6/28
  */
+@Slf4j
 public class PigCustomOAuth2AccessTokenResponseHttpMessageConverter
 		extends OAuth2AccessTokenResponseHttpMessageConverter {
 
@@ -41,6 +44,9 @@ public class PigCustomOAuth2AccessTokenResponseHttpMessageConverter
 					objectMapper);
 			jsonMessageConverter.write(tokenResponseParameters, STRING_OBJECT_MAP.getType(), MediaType.APPLICATION_JSON,
 					outputMessage);
+
+			SecurityLogUtil.logValue(log, "CustomOAuth2AccessTokenResponseHttpMessageConverter", "writeInternal", "tokenResponseParameters", tokenResponseParameters);
+			log.info("|kr.mao|[CustomOAuth2AccessTokenResponseHttpMessageConverter] writeInternal tokenResponse to outputMessage");
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(

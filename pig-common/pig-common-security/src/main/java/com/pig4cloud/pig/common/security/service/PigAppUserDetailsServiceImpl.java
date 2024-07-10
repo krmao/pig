@@ -50,6 +50,8 @@ public class PigAppUserDetailsServiceImpl implements PigUserDetailsService {
 	@Override
 	@SneakyThrows
 	public UserDetails loadUserByUsername(String phone) {
+		log.info("|kr.mao|[PigAppUserDetailsServiceImpl] loadUserByUsername phone={}", phone);
+
 		Cache cache = cacheManager.getCache(CacheConstants.USER_DETAILS);
 		if (cache != null && cache.get(phone) != null) {
 			return (PigUser) cache.get(phone).get();

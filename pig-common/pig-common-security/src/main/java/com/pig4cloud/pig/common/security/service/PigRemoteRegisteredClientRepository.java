@@ -9,6 +9,7 @@ import com.pig4cloud.pig.common.core.constant.SecurityConstants;
 import com.pig4cloud.pig.common.core.util.RetOps;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -30,6 +31,7 @@ import java.util.Optional;
  * @author lengleng
  * @date 2022/5/29
  */
+@Slf4j
 @RequiredArgsConstructor
 public class PigRemoteRegisteredClientRepository implements RegisteredClientRepository {
 
@@ -112,7 +114,7 @@ public class PigRemoteRegisteredClientRepository implements RegisteredClientRepo
 				.filter(StrUtil::isNotBlank)
 				.forEach(builder::scope));
 
-		return builder
+		/*return builder
 			.tokenSettings(TokenSettings.builder()
 				.accessTokenFormat(OAuth2TokenFormat.REFERENCE)
 				.accessTokenTimeToLive(Duration.ofSeconds(
@@ -123,7 +125,22 @@ public class PigRemoteRegisteredClientRepository implements RegisteredClientRepo
 			.clientSettings(ClientSettings.builder()
 				.requireAuthorizationConsent(!BooleanUtil.toBoolean(clientDetails.getAutoapprove()))
 				.build())
-			.build();
+			.build();*/
+
+		RegisteredClient client = builder
+				.tokenSettings(TokenSettings.builder()
+						.accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+						.accessTokenTimeToLive(Duration.ofSeconds(
+								Optional.ofNullable(clientDetails.getAccessTokenValidity()).orElse(accessTokenValiditySeconds)))
+						.refreshTokenTimeToLive(Duration.ofSeconds(Optional.ofNullable(clientDetails.getRefreshTokenValidity())
+								.orElse(refreshTokenValiditySeconds)))
+						.build())
+				.clientSettings(ClientSettings.builder()
+						.requireAuthorizationConsent(!BooleanUtil.toBoolean(clientDetails.getAutoapprove()))
+						.build())
+				.build();
+		log.info("|kr.mao|[PigRemoteRegisteredClientRepository] findByClientId clientId={}, client={}", clientId, client);
+		return client;
 
 	}
 

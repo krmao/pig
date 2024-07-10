@@ -2,6 +2,7 @@ package com.pig4cloud.pig.auth.support.core;
 
 import com.pig4cloud.pig.common.core.constant.SecurityConstants;
 import com.pig4cloud.pig.common.security.service.PigUser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimsContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimsSet;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
  * @author lengleng
  * @date 2022/6/3
  */
+@Slf4j
 public class CustomeOAuth2TokenCustomizer implements OAuth2TokenCustomizer<OAuth2TokenClaimsContext> {
 
 	/**
@@ -33,6 +35,8 @@ public class CustomeOAuth2TokenCustomizer implements OAuth2TokenCustomizer<OAuth
 		claims.claim(SecurityConstants.DETAILS_USER, pigUser);
 		claims.claim(SecurityConstants.DETAILS_USER_ID, pigUser.getId());
 		claims.claim(SecurityConstants.USERNAME, pigUser.getUsername());
+
+		log.info("|kr.mao|[OAuth2TokenCustomizer] CustomeOAuth2TokenCustomizer customize 自定义 token claims={}", claims);
 	}
 
 }

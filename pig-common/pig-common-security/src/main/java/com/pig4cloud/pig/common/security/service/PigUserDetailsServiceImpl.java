@@ -64,6 +64,8 @@ public class PigUserDetailsServiceImpl implements PigUserDetailsService {
 		if (cache != null) {
 			cache.put(username, userDetails);
 		}
+
+		log.info("|kr.mao|[PigUserDetailsServiceImpl] loadUserByUsername 根据用户名获取用户信息 username={}, userDetails={}",username, userDetails);
 		return userDetails;
 	}
 

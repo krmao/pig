@@ -36,10 +36,11 @@
         <hutool.version>5.8.27</hutool.version>
         <mica.version>2.7.4</mica.version>
         <sentinel.version>1.8.4</sentinel.version>
-        <git.commit.plugin>4.9.9</git.commit.plugin>
-        <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
-        <spring.checkstyle.plugin>0.0.39</spring.checkstyle.plugin>
-    </properties>
+		<git.commit.plugin>4.9.9</git.commit.plugin>
+		<flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
+		<spring.checkstyle.plugin>0.0.39</spring.checkstyle.plugin>
+		<jsr305.version>3.0.2</jsr305.version>
+	</properties>
 
     <!-- 定义全局jar版本,模块使用需要再次引入但不用写版本号-->
     <dependencyManagement>
@@ -221,6 +222,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>jsr305</artifactId>
+				<version>${jsr305.version}</version>
+			</dependency>
         </dependencies>
     </dependencyManagement>
 

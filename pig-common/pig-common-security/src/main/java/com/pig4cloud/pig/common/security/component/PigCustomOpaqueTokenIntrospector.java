@@ -38,6 +38,8 @@ public class PigCustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector
 
 	@Override
 	public OAuth2AuthenticatedPrincipal introspect(String token) {
+		log.info("|kr.mao|[CustomOpaqueTokenIntrospector] introspect token={}", token);
+
 		OAuth2Authorization oldAuthorization = authorizationService.findByToken(token, OAuth2TokenType.ACCESS_TOKEN);
 		if (Objects.isNull(oldAuthorization)) {
 			throw new InvalidBearerTokenException(token);
@@ -79,6 +81,8 @@ public class PigCustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector
 		Objects.requireNonNull(user)
 			.getAttributes()
 			.put(SecurityConstants.CLIENT_ID, oldAuthorization.getRegisteredClientId());
+
+		log.info("|kr.mao|[CustomOpaqueTokenIntrospector] introspect token={}, user={}", token, user);
 		return user;
 	}
 

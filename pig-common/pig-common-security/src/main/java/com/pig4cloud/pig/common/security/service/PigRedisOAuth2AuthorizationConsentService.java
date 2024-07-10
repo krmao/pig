@@ -1,6 +1,7 @@
 package com.pig4cloud.pig.common.security.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -8,6 +9,7 @@ import org.springframework.util.Assert;
 
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @RequiredArgsConstructor
 public class PigRedisOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
 
@@ -17,6 +19,8 @@ public class PigRedisOAuth2AuthorizationConsentService implements OAuth2Authoriz
 
 	@Override
 	public void save(OAuth2AuthorizationConsent authorizationConsent) {
+		log.info("|kr.mao|[RedisOAuth2AuthorizationConsentServiceImpl] save authorizationConsent={}", authorizationConsent);
+
 		Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
 
 		redisTemplate.opsForValue()
@@ -26,12 +30,16 @@ public class PigRedisOAuth2AuthorizationConsentService implements OAuth2Authoriz
 
 	@Override
 	public void remove(OAuth2AuthorizationConsent authorizationConsent) {
+		log.info("|kr.mao|[RedisOAuth2AuthorizationConsentServiceImpl] remove authorizationConsent={}", authorizationConsent);
+
 		Assert.notNull(authorizationConsent, "authorizationConsent cannot be null");
 		redisTemplate.delete(buildKey(authorizationConsent));
 	}
 
 	@Override
 	public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
+		log.info("|kr.mao|[RedisOAuth2AuthorizationConsentServiceImpl] findById registeredClientId={}, principalName={}", registeredClientId, principalName);
+
 		Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		return (OAuth2AuthorizationConsent) redisTemplate.opsForValue()

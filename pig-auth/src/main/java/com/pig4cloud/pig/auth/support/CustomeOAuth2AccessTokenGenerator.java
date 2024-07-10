@@ -1,5 +1,6 @@
 package com.pig4cloud.pig.auth.support;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -22,6 +23,7 @@ import java.util.UUID;
  * @author lengleng
  * @date 2022/5/29
  */
+@Slf4j
 public class CustomeOAuth2AccessTokenGenerator implements OAuth2TokenGenerator<OAuth2AccessToken> {
 
 	private OAuth2TokenCustomizer<OAuth2TokenClaimsContext> accessTokenCustomizer;
@@ -29,6 +31,8 @@ public class CustomeOAuth2AccessTokenGenerator implements OAuth2TokenGenerator<O
 	@Nullable
 	@Override
 	public OAuth2AccessToken generate(OAuth2TokenContext context) {
+		log.info("|kr.mao|[CustomOAuth2AccessTokenGenerator] generate context={}", context);
+
 		if (!OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType()) || !OAuth2TokenFormat.REFERENCE
 			.equals(context.getRegisteredClient().getTokenSettings().getAccessTokenFormat())) {
 			return null;
@@ -82,9 +86,18 @@ public class CustomeOAuth2AccessTokenGenerator implements OAuth2TokenGenerator<O
 		}
 
 		OAuth2TokenClaimsSet accessTokenClaimsSet = claimsBuilder.build();
-		return new CustomeOAuth2AccessTokenGenerator.OAuth2AccessTokenClaims(OAuth2AccessToken.TokenType.BEARER,
+		/* wrap for log
+		 return new CustomeOAuth2AccessTokenGenerator.OAuth2AccessTokenClaims(OAuth2AccessToken.TokenType.BEARER,
 				UUID.randomUUID().toString(), accessTokenClaimsSet.getIssuedAt(), accessTokenClaimsSet.getExpiresAt(),
 				context.getAuthorizedScopes(), accessTokenClaimsSet.getClaims());
+		*/
+
+		OAuth2AccessToken token = new CustomeOAuth2AccessTokenGenerator.OAuth2AccessTokenClaims(OAuth2AccessToken.TokenType.BEARER,
+				UUID.randomUUID().toString(), accessTokenClaimsSet.getIssuedAt(), accessTokenClaimsSet.getExpiresAt(),
+				context.getAuthorizedScopes(), accessTokenClaimsSet.getClaims());
+
+		log.info("|kr.mao|[OAuth2TokenGenerator] CustomOAuth2AccessTokenGenerator generate 生成 token token={}", token);
+		return token;
 	}
 
 	/**

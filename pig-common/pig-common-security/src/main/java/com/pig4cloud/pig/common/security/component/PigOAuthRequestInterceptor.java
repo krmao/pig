@@ -42,22 +42,26 @@ public class PigOAuthRequestInterceptor implements RequestInterceptor {
 		Collection<String> fromHeader = template.headers().get(SecurityConstants.FROM);
 		// 带from 请求直接跳过
 		if (CollUtil.isNotEmpty(fromHeader) && fromHeader.contains(SecurityConstants.FROM_IN)) {
+			log.info("|kr.mao|[OAuthRequestInterceptor] apply return 带from 请求直接跳过 template={}", template);
 			return;
 		}
 
 		// 非web 请求直接跳过
 		if (!WebUtils.getRequest().isPresent()) {
+			log.info("|kr.mao|[OAuthRequestInterceptor] apply return 非web 请求直接跳过 template={}", template);
 			return;
 		}
 		HttpServletRequest request = WebUtils.getRequest().get();
 		// 避免请求参数的 query token 无法传递
 		String token = tokenResolver.resolve(request);
 		if (StringUtils.isBlank(token)) {
+			log.info("|kr.mao|[OAuthRequestInterceptor] apply return 避免请求参数的 query token 无法传递 template={}", template);
 			return;
 		}
 		template.header(HttpHeaders.AUTHORIZATION,
 				String.format("%s %s", OAuth2AccessToken.TokenType.BEARER.getValue(), token));
 
+		log.info("|kr.mao|[OAuthRequestInterceptor] apply end template={}", template);
 	}
 
 }

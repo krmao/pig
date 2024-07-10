@@ -28,8 +28,10 @@ import com.pig4cloud.pig.auth.support.password.OAuth2ResourceOwnerPasswordAuthen
 import com.pig4cloud.pig.auth.support.password.OAuth2ResourceOwnerPasswordAuthenticationProvider;
 import com.pig4cloud.pig.auth.support.sms.OAuth2ResourceOwnerSmsAuthenticationConverter;
 import com.pig4cloud.pig.auth.support.sms.OAuth2ResourceOwnerSmsAuthenticationProvider;
+import com.pig4cloud.pig.auth.util.AuthLogUtil;
 import com.pig4cloud.pig.common.core.constant.SecurityConstants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,6 +60,7 @@ import java.util.Arrays;
  * <p>
  * 认证服务器配置
  */
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class AuthorizationServerConfiguration {
@@ -80,7 +83,7 @@ public class AuthorizationServerConfiguration {
 
 		// 使用 HttpSecurity 获取 OAuth 2.1 配置中的 OAuth2AuthorizationServerConfigurer 对象
 		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = http
-			.getConfigurer(OAuth2AuthorizationServerConfigurer.class);
+				.getConfigurer(OAuth2AuthorizationServerConfigurer.class);
 
 		// 增加验证码过滤器
 		http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class);
@@ -88,32 +91,34 @@ public class AuthorizationServerConfiguration {
 		http.addFilterBefore(passwordDecoderFilter, UsernamePasswordAuthenticationFilter.class);
 
 		authorizationServerConfigurer.tokenEndpoint((tokenEndpoint) -> {// 个性化认证授权端点
-			tokenEndpoint.accessTokenRequestConverter(accessTokenRequestConverter()) // 注入自定义的授权认证Converter
-				.accessTokenResponseHandler(new PigAuthenticationSuccessEventHandler()) // 登录成功处理器
-				.errorResponseHandler(new PigAuthenticationFailureEventHandler());// 登录失败处理器
-		}).clientAuthentication(oAuth2ClientAuthenticationConfigurer -> // 个性化客户端认证
-		oAuth2ClientAuthenticationConfigurer.errorResponseHandler(new PigAuthenticationFailureEventHandler()))// 处理客户端认证异常
-			.authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint// 授权码端点个性化confirm页面
-				.consentPage(SecurityConstants.CUSTOM_CONSENT_PAGE_URI));
+					tokenEndpoint.accessTokenRequestConverter(accessTokenRequestConverter()) // 注入自定义的授权认证Converter
+							.accessTokenResponseHandler(new PigAuthenticationSuccessEventHandler()) // 登录成功处理器
+							.errorResponseHandler(new PigAuthenticationFailureEventHandler());// 登录失败处理器
+				}).clientAuthentication(oAuth2ClientAuthenticationConfigurer -> // 个性化客户端认证
+						oAuth2ClientAuthenticationConfigurer.errorResponseHandler(new PigAuthenticationFailureEventHandler()))// 处理客户端认证异常
+				.authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint// 授权码端点个性化confirm页面
+						.consentPage(SecurityConstants.CUSTOM_CONSENT_PAGE_URI));
 
 		DefaultSecurityFilterChain securityFilterChain = authorizationServerConfigurer
-			.authorizationService(authorizationService)// redis存储token的实现
-			.authorizationServerSettings(
-					AuthorizationServerSettings.builder().issuer(SecurityConstants.PROJECT_LICENSE).build())
-			// 授权码登录的登录页个性化
-			.and()
-			.apply(new FormIdentityLoginConfigurer())
-			.and()
-			.build();
+				.authorizationService(authorizationService)// redis存储token的实现
+				.authorizationServerSettings(
+						AuthorizationServerSettings.builder().issuer(SecurityConstants.PROJECT_LICENSE).build())
+				// 授权码登录的登录页个性化
+				.and()
+				.apply(new FormIdentityLoginConfigurer())
+				.and()
+				.build();
 
 		// 注入自定义授权模式实现
 		addCustomOAuth2GrantAuthenticationProvider(http);
-		return securityFilterChain;
+		// return securityFilterChain;
+		return AuthLogUtil.wrapForShowSecurityFilterChainLogs(log, securityFilterChain);
 	}
 
 	/**
 	 * 令牌生成规则实现 </br>
 	 * client:username:uuid
+	 *
 	 * @return OAuth2TokenGenerator
 	 */
 	@Bean
@@ -121,21 +126,36 @@ public class AuthorizationServerConfiguration {
 		CustomeOAuth2AccessTokenGenerator accessTokenGenerator = new CustomeOAuth2AccessTokenGenerator();
 		// 注入Token 增加关联用户信息
 		accessTokenGenerator.setAccessTokenCustomizer(new CustomeOAuth2TokenCustomizer());
-		return new DelegatingOAuth2TokenGenerator(accessTokenGenerator, new OAuth2RefreshTokenGenerator());
+		// return new DelegatingOAuth2TokenGenerator(accessTokenGenerator, new OAuth2RefreshTokenGenerator());
+		return AuthLogUtil.wrapForShowOAuth2TokenGeneratorLogs(log, new DelegatingOAuth2TokenGenerator(accessTokenGenerator, new OAuth2RefreshTokenGenerator()));
 	}
 
 	/**
 	 * request -> xToken 注入请求转换器
+	 *
 	 * @return DelegatingAuthenticationConverter
 	 */
 	@Bean
 	public AuthenticationConverter accessTokenRequestConverter() {
-		return new DelegatingAuthenticationConverter(Arrays.asList(
-				new OAuth2ResourceOwnerPasswordAuthenticationConverter(),
-				new OAuth2ResourceOwnerSmsAuthenticationConverter(), new OAuth2RefreshTokenAuthenticationConverter(),
+		/* wrap with log
+		 return new DelegatingAuthenticationConverter(Arrays.asList(
+		 		new OAuth2ResourceOwnerPasswordAuthenticationConverter(),
+		 		new OAuth2ResourceOwnerSmsAuthenticationConverter(), new OAuth2RefreshTokenAuthenticationConverter(),
 				new OAuth2ClientCredentialsAuthenticationConverter(),
 				new OAuth2AuthorizationCodeAuthenticationConverter(),
 				new OAuth2AuthorizationCodeRequestAuthenticationConverter()));
+		*/
+
+		return new DelegatingAuthenticationConverter(
+				Arrays.asList(
+						AuthLogUtil.wrapForShowOAuth2ResourceOwnerBaseAuthenticationConverterLogs(log, new OAuth2ResourceOwnerPasswordAuthenticationConverter()),
+						AuthLogUtil.wrapForShowOAuth2ResourceOwnerBaseAuthenticationConverterLogs(log, new OAuth2ResourceOwnerSmsAuthenticationConverter()),
+						AuthLogUtil.wrapForShowOAuth2ResourceOwnerBaseAuthenticationConverterLogs(log, new OAuth2RefreshTokenAuthenticationConverter()),
+						AuthLogUtil.wrapForShowOAuth2ResourceOwnerBaseAuthenticationConverterLogs(log, new OAuth2ClientCredentialsAuthenticationConverter()),
+						AuthLogUtil.wrapForShowOAuth2ResourceOwnerBaseAuthenticationConverterLogs(log, new OAuth2AuthorizationCodeAuthenticationConverter()),
+						AuthLogUtil.wrapForShowOAuth2ResourceOwnerBaseAuthenticationConverterLogs(log, new OAuth2AuthorizationCodeRequestAuthenticationConverter()),
+						new OAuth2AuthorizationCodeRequestAuthenticationConverter()
+				));
 	}
 
 	/**
@@ -156,11 +176,15 @@ public class AuthorizationServerConfiguration {
 				authenticationManager, authorizationService, oAuth2TokenGenerator());
 
 		// 处理 UsernamePasswordAuthenticationToken
-		http.authenticationProvider(new PigDaoAuthenticationProvider());
+		// http.authenticationProvider(new PigDaoAuthenticationProvider());
+		http.authenticationProvider(AuthLogUtil.wrapForShowAuthenticationProviderLogs(log, new PigDaoAuthenticationProvider()));
+
 		// 处理 OAuth2ResourceOwnerPasswordAuthenticationToken
-		http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider);
+		// http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider);
+		http.authenticationProvider(AuthLogUtil.wrapForShowAuthenticationProviderLogs(log, resourceOwnerPasswordAuthenticationProvider));
 		// 处理 OAuth2ResourceOwnerSmsAuthenticationToken
-		http.authenticationProvider(resourceOwnerSmsAuthenticationProvider);
+		// http.authenticationProvider(resourceOwnerSmsAuthenticationProvider);
+		http.authenticationProvider(AuthLogUtil.wrapForShowAuthenticationProviderLogs(log, resourceOwnerSmsAuthenticationProvider));
 	}
 
 }
