@@ -17,6 +17,7 @@ spring:
 #    enable: true
 #    base-path: /Users/lengleng/Downloads/img
 
+
 file:
   bucketName: test # 上文创建的桶名称
   oss:
