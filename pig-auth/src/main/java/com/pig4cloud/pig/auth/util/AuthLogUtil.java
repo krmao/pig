@@ -171,6 +171,65 @@ public class AuthLogUtil {
 	 *
 	 * @see <a href="https://zhuanlan.zhihu.com/p/665648469">SpringSecurity6 | 核心过滤器</a>
 	 * @see <a href="https://blog.csdn.net/qq_44444470/article/details/133089941">SpringSecurity的默认Filter详解</a>
+	 * <p>
+	 * =================================================================
+	 * <p>
+	 * - pig master cloud
+	 * ---- DisableEncodeUrlFilter,
+	 * ---- WebAsyncManagerIntegrationFilter,
+	 * ---- AuthorizationServerContextFilter,
+	 * ---- SecurityContextPersistenceFilter,
+	 * ---- HeaderWriterFilter,
+	 * ---- LogoutFilter,
+	 * ---- OAuth2AuthorizationServerMetadataEndpointFilter,
+	 * ---- OAuth2AuthorizationEndpointFilter,
+	 * ---- OAuth2ClientAuthenticationFilter,
+	 * <p>
+	 * ---- ValidateCodeFilter,
+	 * ---- PasswordDecoderFilter,
+	 * ---- UsernamePasswordAuthenticationFilter,
+	 * <p>
+	 * ---- RequestCacheAwareFilter,
+	 * ---- SecurityContextHolderAwareRequestFilter,
+	 * ---- AnonymousAuthenticationFilter,
+	 * ---- SessionManagementFilter,
+	 * ---- ExceptionTranslationFilter,
+	 * <p>
+	 * ---- FilterSecurityInterceptor,
+	 * <p>
+	 * ---- OAuth2TokenEndpointFilter,
+	 * ---- OAuth2TokenIntrospectionEndpointFilter,
+	 * ---- OAuth2TokenRevocationEndpointFilter
+	 * <p>
+	 * =================================================================
+	 * <p>
+	 * - pig master boot
+	 * ---- DisableEncodeUrlFilter
+	 * ---- WebAsyncManagerIntegrationFilter
+	 * ---- AuthorizationServerContextFilter
+	 * ---- SecurityContextPersistenceFilter
+	 * ---- HeaderWriterFilter
+	 * ---- LogoutFilter
+	 * ---- OAuth2AuthorizationServerMetadataEndpointFilter
+	 * ---- OAuth2AuthorizationEndpointFilter
+	 * ---- OAuth2ClientAuthenticationFilter
+	 * <p>
+	 * ---- PasswordDecoderFilter
+	 * ---- ValidateCodeFilter
+	 * ---- BearerTokenAuthenticationFilter
+	 * <p>
+	 * ---- RequestCacheAwareFilter
+	 * ---- SecurityContextHolderAwareRequestFilter
+	 * ---- AnonymousAuthenticationFilter
+	 * ---- SessionManagementFilter
+	 * ---- ExceptionTranslationFilter
+	 * ---- OAuth2TokenEndpointFilter
+	 * ---- OAuth2TokenIntrospectionEndpointFilter
+	 * ---- OAuth2TokenRevocationEndpointFilter
+	 * <p>
+	 * ---- AuthorizationFilter
+	 * <p>
+	 * =================================================================
 	 */
 	public static String getFilterDescription(String filterName) {
 		switch (filterName) {

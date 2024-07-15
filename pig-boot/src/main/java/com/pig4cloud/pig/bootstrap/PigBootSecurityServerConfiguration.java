@@ -26,11 +26,13 @@ import com.pig4cloud.pig.auth.support.handler.PigAuthenticationFailureEventHandl
 import com.pig4cloud.pig.auth.support.handler.PigAuthenticationSuccessEventHandler;
 import com.pig4cloud.pig.auth.support.password.OAuth2ResourceOwnerPasswordAuthenticationProvider;
 import com.pig4cloud.pig.auth.support.sms.OAuth2ResourceOwnerSmsAuthenticationProvider;
+import com.pig4cloud.pig.auth.util.AuthLogUtil;
 import com.pig4cloud.pig.common.core.constant.SecurityConstants;
 import com.pig4cloud.pig.common.security.component.PermitAllUrlProperties;
 import com.pig4cloud.pig.common.security.component.PigBearerTokenExtractor;
 import com.pig4cloud.pig.common.security.component.ResourceAuthExceptionEntryPoint;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -55,6 +57,7 @@ import java.util.stream.Collectors;
 /**
  * @author lengleng 认证授权服务器配置
  */
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class PigBootSecurityServerConfiguration {
@@ -118,7 +121,8 @@ public class PigBootSecurityServerConfiguration {
 
 		// 注入自定义授权模式实现
 		addCustomOAuth2GrantAuthenticationProvider(http);
-		return securityFilterChain;
+		// return securityFilterChain;
+		return AuthLogUtil.wrapForShowSecurityFilterChainLogs(log, securityFilterChain);
 	}
 
 	/**
@@ -139,11 +143,17 @@ public class PigBootSecurityServerConfiguration {
 				authenticationManager, authorizationService, oAuth2TokenGenerator);
 
 		// 处理 UsernamePasswordAuthenticationToken
-		http.authenticationProvider(new PigDaoAuthenticationProvider());
+		// http.authenticationProvider(new PigDaoAuthenticationProvider());
+		http.authenticationProvider(AuthLogUtil.wrapForShowAuthenticationProviderLogs(log, new PigDaoAuthenticationProvider()));
+
 		// 处理 OAuth2ResourceOwnerPasswordAuthenticationToken
-		http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider);
+		// http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider);
+		http.authenticationProvider(AuthLogUtil.wrapForShowAuthenticationProviderLogs(log, resourceOwnerPasswordAuthenticationProvider));
+
 		// 处理 OAuth2ResourceOwnerSmsAuthenticationToken
-		http.authenticationProvider(resourceOwnerSmsAuthenticationProvider);
+		// http.authenticationProvider(resourceOwnerSmsAuthenticationProvider);
+		http.authenticationProvider(AuthLogUtil.wrapForShowAuthenticationProviderLogs(log, resourceOwnerSmsAuthenticationProvider));
+
 	}
 
 }

@@ -182,6 +182,7 @@ public class AuthorizationServerConfiguration {
 		// 处理 OAuth2ResourceOwnerPasswordAuthenticationToken
 		// http.authenticationProvider(resourceOwnerPasswordAuthenticationProvider);
 		http.authenticationProvider(AuthLogUtil.wrapForShowAuthenticationProviderLogs(log, resourceOwnerPasswordAuthenticationProvider));
+
 		// 处理 OAuth2ResourceOwnerSmsAuthenticationToken
 		// http.authenticationProvider(resourceOwnerSmsAuthenticationProvider);
 		http.authenticationProvider(AuthLogUtil.wrapForShowAuthenticationProviderLogs(log, resourceOwnerSmsAuthenticationProvider));
