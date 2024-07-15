@@ -99,6 +99,7 @@ public class PigBootSecurityServerConfiguration {
 				.authorizationServerSettings(
 						AuthorizationServerSettings.builder().issuer(SecurityConstants.PROJECT_LICENSE).build());
 
+		//region 支持security:ignore:urls:配置直接对外暴露接口而不需要进行认证
 		AntPathRequestMatcher[] requestMatchers = permitAllUrl.getUrls()
 				.stream()
 				.map(AntPathRequestMatcher::new)
@@ -109,10 +110,13 @@ public class PigBootSecurityServerConfiguration {
 						.permitAll()
 						.anyRequest()
 						.authenticated())
+				//endregion
+				//region 资源服务器配置, 因为单体应用boot开启了@EnablePigResourceServer; 而cloud应用auth模块本身主要关注 OAuth2 授权服务器配置, 所以两边存在不同
 				.oauth2ResourceServer(
 						oauth2 -> oauth2.opaqueToken(token -> token.introspector(customOpaqueTokenIntrospector))
 								.authenticationEntryPoint(resourceAuthExceptionEntryPoint)
 								.bearerTokenResolver(pigBearerTokenExtractor))
+				//endregion
 				.exceptionHandling(configurer -> configurer.authenticationEntryPoint(resourceAuthExceptionEntryPoint))
 				.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 				.csrf(AbstractHttpConfigurer::disable);
