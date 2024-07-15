@@ -88,34 +88,34 @@ public class PigBootSecurityServerConfiguration {
 		http.addFilterAfter(passwordDecoderFilter, UsernamePasswordAuthenticationFilter.class);
 		http.addFilterAfter(validateCodeFilter, UsernamePasswordAuthenticationFilter.class);
 		http.apply(authorizationServerConfigurer.tokenEndpoint((tokenEndpoint) -> {// 个性化认证授权端点
-			tokenEndpoint.accessTokenRequestConverter(accessTokenRequestConverter) // 注入自定义的授权认证Converter
-				.accessTokenResponseHandler(new PigAuthenticationSuccessEventHandler()) // 登录成功处理器
-				.errorResponseHandler(new PigAuthenticationFailureEventHandler());// 登录失败处理器
-		}).clientAuthentication(oAuth2ClientAuthenticationConfigurer -> // 个性化客户端认证
-		oAuth2ClientAuthenticationConfigurer.errorResponseHandler(new PigAuthenticationFailureEventHandler()))// 处理客户端认证异常
-			.authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint// 授权码端点个性化confirm页面
-				.consentPage(SecurityConstants.CUSTOM_CONSENT_PAGE_URI)))
-			.authorizationService(authorizationService)
-			.authorizationServerSettings(
-					AuthorizationServerSettings.builder().issuer(SecurityConstants.PROJECT_LICENSE).build());
+							tokenEndpoint.accessTokenRequestConverter(accessTokenRequestConverter) // 注入自定义的授权认证Converter
+									.accessTokenResponseHandler(new PigAuthenticationSuccessEventHandler()) // 登录成功处理器
+									.errorResponseHandler(new PigAuthenticationFailureEventHandler());// 登录失败处理器
+						}).clientAuthentication(oAuth2ClientAuthenticationConfigurer -> // 个性化客户端认证
+								oAuth2ClientAuthenticationConfigurer.errorResponseHandler(new PigAuthenticationFailureEventHandler()))// 处理客户端认证异常
+						.authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint// 授权码端点个性化confirm页面
+								.consentPage(SecurityConstants.CUSTOM_CONSENT_PAGE_URI)))
+				.authorizationService(authorizationService)
+				.authorizationServerSettings(
+						AuthorizationServerSettings.builder().issuer(SecurityConstants.PROJECT_LICENSE).build());
 
 		AntPathRequestMatcher[] requestMatchers = permitAllUrl.getUrls()
-			.stream()
-			.map(AntPathRequestMatcher::new)
-			.collect(Collectors.toList())
-			.toArray(new AntPathRequestMatcher[] {});
+				.stream()
+				.map(AntPathRequestMatcher::new)
+				.collect(Collectors.toList())
+				.toArray(new AntPathRequestMatcher[]{});
 
 		http.authorizeHttpRequests(authorizeRequests -> authorizeRequests.requestMatchers(requestMatchers)
-			.permitAll()
-			.anyRequest()
-			.authenticated())
-			.oauth2ResourceServer(
-					oauth2 -> oauth2.opaqueToken(token -> token.introspector(customOpaqueTokenIntrospector))
-						.authenticationEntryPoint(resourceAuthExceptionEntryPoint)
-						.bearerTokenResolver(pigBearerTokenExtractor))
-			.exceptionHandling(configurer -> configurer.authenticationEntryPoint(resourceAuthExceptionEntryPoint))
-			.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-			.csrf(AbstractHttpConfigurer::disable);
+						.permitAll()
+						.anyRequest()
+						.authenticated())
+				.oauth2ResourceServer(
+						oauth2 -> oauth2.opaqueToken(token -> token.introspector(customOpaqueTokenIntrospector))
+								.authenticationEntryPoint(resourceAuthExceptionEntryPoint)
+								.bearerTokenResolver(pigBearerTokenExtractor))
+				.exceptionHandling(configurer -> configurer.authenticationEntryPoint(resourceAuthExceptionEntryPoint))
+				.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+				.csrf(AbstractHttpConfigurer::disable);
 
 		DefaultSecurityFilterChain securityFilterChain = http.build();
 

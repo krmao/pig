@@ -82,8 +82,7 @@ public class AuthorizationServerConfiguration {
 		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
 		// 使用 HttpSecurity 获取 OAuth 2.1 配置中的 OAuth2AuthorizationServerConfigurer 对象
-		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = http
-				.getConfigurer(OAuth2AuthorizationServerConfigurer.class);
+		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = http.getConfigurer(OAuth2AuthorizationServerConfigurer.class);
 
 		// 增加验证码过滤器
 		http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class);
@@ -101,8 +100,7 @@ public class AuthorizationServerConfiguration {
 
 		DefaultSecurityFilterChain securityFilterChain = authorizationServerConfigurer
 				.authorizationService(authorizationService)// redis存储token的实现
-				.authorizationServerSettings(
-						AuthorizationServerSettings.builder().issuer(SecurityConstants.PROJECT_LICENSE).build())
+				.authorizationServerSettings(AuthorizationServerSettings.builder().issuer(SecurityConstants.PROJECT_LICENSE).build())
 				// 授权码登录的登录页个性化
 				.and()
 				.apply(new FormIdentityLoginConfigurer())
