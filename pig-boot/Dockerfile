@@ -1,4 +1,4 @@
-FROM alibabadragonwell/dragonwell:21-anolis
+FROM harbor.codesdancing.com/mirror/airdock/oraclejdk:1.8
 
 WORKDIR /pig-boot
 
