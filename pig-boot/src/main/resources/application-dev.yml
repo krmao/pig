@@ -9,22 +9,23 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
-    url: jdbc:mysql://pig-mysql:3306/pig?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+    # url: jdbc:mysql://pig-mysql:3306/pig?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://10.180.214.128:14609/pig?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&nullCatalogMeansCurrent=true&allowPublicKeyRetrieval=true
 
 # 本地文件系统
-#file:
-#  local:
-#    enable: true
-#    base-path: /Users/lengleng/Downloads/img
-
-
 file:
-  bucketName: test # 上文创建的桶名称
-  oss:
+  local:
     enable: true
-    endpoint: http://127.0.0.1:9000
-    access-key: 99SdYFm5bOGEwHeTDpgH # 上文创建的AK
-    secret-key: ijFu7tfODt9fo0DxzhJXdWcmNi8FHO9NOuYUaExB # 上文创建的SK
+    base-path: ~/.minio
+
+
+#file:
+#  bucketName: test # 上文创建的桶名称
+#  oss:
+#    enable: true
+#    endpoint: http://127.0.0.1:9000
+#    access-key: 99SdYFm5bOGEwHeTDpgH # 上文创建的AK
+#    secret-key: ijFu7tfODt9fo0DxzhJXdWcmNi8FHO9NOuYUaExB # 上文创建的SK
 
 ## 登录配置
 security:
