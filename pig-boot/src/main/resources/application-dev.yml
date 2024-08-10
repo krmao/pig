@@ -3,7 +3,9 @@ spring:
   cache:
     type: redis
   redis:
-    host: pig-redis
+    # host: pig-redis
+    host: 10.180.214.128
+    port: 30101
   # 数据库相关配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
